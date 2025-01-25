@@ -88,6 +88,10 @@ public class BubbleGun : MonoBehaviour
         if (_nativeBubbles.IsEmpty)
             return;
 
+        //
+        // Apply Movement and Decay to Initialized Bubbles
+        //
+
         _nativeBubbleMatrices = new NativeList<Matrix4x4>(_nativeBubbles.Capacity, Allocator.TempJob);
 
         bubbleFunctionJob.BubblesList = _nativeBubbles.AsDeferredJobArray();
@@ -96,18 +100,33 @@ public class BubbleGun : MonoBehaviour
         bubbleFunctionJob.bubbleScale = new float3(bubbleSize, bubbleSize, bubbleSize);
         bubbleFunctionJob.deltaTime = Time.deltaTime;
 
-        var bubbleFuncHandle = bubbleFunctionJob.Schedule(_nativeBubbles.Length, 50);
+        var bubbleFuncHandle = bubbleFunctionJob.Schedule(_nativeBubbles.Length, 100);
         bubbleFuncHandle.Complete();
 
-        NativeList<Bubble> FilteredBubbles = new NativeList<Bubble>(_nativeBubbles.Length, Allocator.TempJob);
-
-        var bubbleFilterHandle = bubbleFilterJob.Schedule(_nativeBubbles.Length, 50, bubbleFuncHandle);
-        bubbleFilterHandle.Complete();
 
         if (_nativeBubbleMatrices.IsCreated)
             Graphics.RenderMeshInstanced(renderParams, bubbleMesh, 0, _nativeBubbleMatrices.AsArray());
 
         _nativeBubbleMatrices.Dispose();
+
+
+        //
+        // Apply Bubble Filtering on Decayed Bubbles
+        //
+
+        NativeList<Bubble> FilteredBubbles = new NativeList<Bubble>(_nativeBubbles.Capacity, Allocator.TempJob);
+
+        bubbleFilterJob.FilteredBubbles = FilteredBubbles.AsParallelWriter();
+        bubbleFilterJob.BubblesList = _nativeBubbles.AsDeferredJobArray();
+
+        var bubbleFilterHandle = bubbleFilterJob.Schedule(_nativeBubbles.Length, 50, bubbleFuncHandle);
+        bubbleFilterHandle.Complete();
+
+        _nativeBubbles = FilteredBubbles;
+
+        //FilteredBubbles.Dispose();
+
+        Debug.Log("Filtered Amount: " + FilteredBubbles.Length);
     }
 
     private void OnDrawGizmos()

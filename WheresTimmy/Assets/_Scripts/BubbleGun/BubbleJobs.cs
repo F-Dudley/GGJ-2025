@@ -23,7 +23,7 @@ internal struct Bubble
 [BurstCompile]
 internal struct BubbleFunctionJob : IJobParallelFor
 {
-    [ReadOnly] public NativeArray<Bubble> BubblesList;
+    public NativeArray<Bubble> BubblesList;
 
     [ReadOnly] public float moveAmount;
     [ReadOnly] public float deltaTime;
@@ -52,10 +52,16 @@ internal struct BubbleFunctionJob : IJobParallelFor
 
 internal struct BubbleFilterJob : IJobParallelFor
 {
-    public NativeList<Bubble> BubblesList { get; internal set; }
+    public NativeList<Bubble>.ParallelWriter FilteredBubbles;
+    [ReadOnly] public NativeArray<Bubble> BubblesList;
 
     public void Execute(int index)
     {
+        Bubble bubble = BubblesList[index];
 
+        if (bubble.isDecayed)
+            return;
+
+        FilteredBubbles.AddNoResize(bubble);
     }
 }
