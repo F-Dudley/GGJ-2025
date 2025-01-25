@@ -448,7 +448,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a9c8174156463cb4ab5a173a4cdbba5e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  fireCooldown: 0.01
+  fireCooldown: 0.005
   maxFireDistance: 100
   firePosition: {fileID: 3287398228673947522}
   spreadAmount: {x: 23, y: 23}
