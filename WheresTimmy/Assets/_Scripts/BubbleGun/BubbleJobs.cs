@@ -23,12 +23,14 @@ internal struct Bubble
 [BurstCompile]
 internal struct BubbleFunctionJob : IJobParallelFor
 {
-    // 
-    public NativeList<Bubble> BubblesList;
+    [ReadOnly] public NativeArray<Bubble> BubblesList;
+
     [ReadOnly] public float moveAmount;
     [ReadOnly] public float deltaTime;
 
-    [WriteOnly] public NativeList<Matrix4x4> BubbleMatrices;
+    [ReadOnly] public float3 bubbleScale;
+
+    [WriteOnly] public NativeList<Matrix4x4>.ParallelWriter BubbleMatrices;
 
     public void Execute(int index)
     {
@@ -37,8 +39,11 @@ internal struct BubbleFunctionJob : IJobParallelFor
 
         Bubble bubble = BubblesList[index];
 
-        bubble.pos = math.lerp(bubble.pos, bubble.target, moveAmount);
+        bubble.pos = math.lerp(bubble.pos, bubble.target, moveAmount * deltaTime);
         bubble.decayTime -= deltaTime;
+
+        if (!bubble.isDecayed)
+            BubbleMatrices.AddNoResize(Matrix4x4.TRS(bubble.pos, quaternion.identity, bubbleScale));
 
         BubblesList[index] = bubble;
     }

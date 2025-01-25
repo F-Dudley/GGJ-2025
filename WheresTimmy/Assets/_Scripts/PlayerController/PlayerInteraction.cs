@@ -3,9 +3,8 @@ using StarterAssets;
 
 public class PlayerInteraction : MonoBehaviour
 {
-    Camera playerCamera;
-
     [Header("Iteraction Settings")]
+    [SerializeField] Camera playerCamera;
     [SerializeField] private float interactDistance;
     [SerializeField] private float interactWidth;
 
@@ -16,14 +15,17 @@ public class PlayerInteraction : MonoBehaviour
 
     private StarterAssetsInputs _input;
 
-    private void OnAwake()
+    [Header("Bubble Gun Interaction")]
+    [SerializeField] private BubbleGun bubbleGun;
+
+    private void Awake()
     {
         playerCamera = Camera.main;
 
         _input = GetComponent<StarterAssetsInputs>();
     }
 
-    private void OnUpdate()
+    private void Update()
     {
         if (playerCamera == null)
         {
@@ -41,9 +43,10 @@ public class PlayerInteraction : MonoBehaviour
             }
         }
 
-        if (_input != null && _input.shoot)
+        bool inputValid = _input != null && _input.shoot;
+        if (inputValid && bubbleGun != null)
         {
-            Debug.Log("Shoot The Thing.");
+            bubbleGun.FireGun();
         }
     }
 }

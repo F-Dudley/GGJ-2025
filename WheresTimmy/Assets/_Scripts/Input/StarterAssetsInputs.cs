@@ -1,3 +1,4 @@
+using UnityEditor.Rendering.LookDev;
 using UnityEngine;
 #if ENABLE_INPUT_SYSTEM
 using UnityEngine.InputSystem;
@@ -25,37 +26,42 @@ namespace StarterAssets
 		public bool cursorInputForLook = true;
 
 #if ENABLE_INPUT_SYSTEM
-		public void OnMove(InputValue value)
+		public void Awake()
 		{
-			MoveInput(value.Get<Vector2>());
+
 		}
 
-		public void OnLook(InputValue value)
+		public void OnMove(InputAction.CallbackContext context)
+		{
+			MoveInput(context.ReadValue<Vector2>());
+		}
+
+		public void OnLook(InputAction.CallbackContext context)
 		{
 			if (cursorInputForLook)
 			{
-				LookInput(value.Get<Vector2>());
+				LookInput(context.ReadValue<Vector2>());
 			}
 		}
 
-		public void OnJump(InputValue value)
+		public void OnJump(InputAction.CallbackContext context)
 		{
-			JumpInput(value.isPressed);
+			JumpInput(context.ReadValueAsButton());
 		}
 
-		public void OnSprint(InputValue value)
+		public void OnSprint(InputAction.CallbackContext context)
 		{
-			SprintInput(value.isPressed);
+			SprintInput(context.ReadValueAsButton());
 		}
 
-		public void OnInteract(InputValue value)
+		public void OnInteract(InputAction.CallbackContext context)
 		{
-			InteractInput(value.isPressed);
+			InteractInput(context.ReadValueAsButton());
 		}
 
-		public void OnShoot(InputValue value)
+		public void OnShoot(InputAction.CallbackContext context)
 		{
-			ShootInput(value.isPressed);
+			ShootInput(context.ReadValueAsButton());
 		}
 #endif
 

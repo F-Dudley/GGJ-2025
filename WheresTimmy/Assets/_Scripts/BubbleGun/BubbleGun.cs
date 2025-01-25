@@ -1,13 +1,14 @@
 using Unity.Collections;
 using Unity.Jobs;
 using Unity.Mathematics;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class BubbleGun : MonoBehaviour
 
 {
     [Header("Shoot Settings")]
-    [SerializeField][Range(0.1f, 10)] private float fireCooldown;
+    [SerializeField] private float fireCooldown;
     [SerializeField] private float maxFireDistance = 20.0f;
 
     [SerializeField] private Transform firePosition;
@@ -19,7 +20,9 @@ public class BubbleGun : MonoBehaviour
     private float lastFireTime = 0.0f;
 
     [Header("Bubble Settings")]
-    [SerializeField] private float decayTime;
+    [SerializeField] private float bubbleMovement = 0.5f;
+    [SerializeField] private float bubbleSize = 0.01f;
+    [SerializeField] private float decayTime = 4.0f;
     [SerializeField] private Mesh bubbleMesh;
     [SerializeField] private Material bubbleMat;
     private NativeList<Bubble> _nativeBubbles;
@@ -33,34 +36,27 @@ public class BubbleGun : MonoBehaviour
     {
         lastFireTime = Time.time;
 
-        _nativeBubbles = new NativeList<Bubble>();
-        _nativeBubbleMatrices = new NativeList<Matrix4x4>();
-
+        _nativeBubbles = new NativeList<Bubble>(Allocator.Persistent);
         // Init Jobs
+        bubbleFunctionJob = new BubbleFunctionJob();
 
-        bubbleFunctionJob = new BubbleFunctionJob
-        {
-            BubblesList = _nativeBubbles,
-            BubbleMatrices = _nativeBubbleMatrices
-        };
-
-        bubbleFilterJob = new BubbleFilterJob
-        {
-
-        };
+        bubbleFilterJob = new BubbleFilterJob();
 
         renderParams = new RenderParams(bubbleMat);
     }
 
     private void OnDestroy()
     {
-        _nativeBubbles.Dispose();
-        _nativeBubbleMatrices.Dispose();
+        if (_nativeBubbles.IsCreated)
+            _nativeBubbles.Dispose();
+
+        if (_nativeBubbleMatrices.IsCreated)
+            _nativeBubbleMatrices.Dispose();
     }
 
     public void FireGun()
     {
-        if (lastFireTime > Time.time)
+        if (lastFireTime + fireCooldown > Time.time)
             return;
 
         Ray ray;
@@ -68,31 +64,55 @@ public class BubbleGun : MonoBehaviour
 
         for (int i = 0; i < rayAmount; i++)
         {
-            Vector3 shootSpread = new(UnityEngine.Random.Range(-spreadAmount.x, spreadAmount.x), UnityEngine.Random.Range(-spreadAmount.y, spreadAmount.y));
+            float randomYaw = UnityEngine.Random.Range(-spreadAmount.x, spreadAmount.x);
+            float randomPitch = UnityEngine.Random.Range(-spreadAmount.y, spreadAmount.y);
 
-            ray = new Ray(firePosition.position, (firePosition.forward + shootSpread).normalized);
+            ray = new Ray(firePosition.position, (Quaternion.Euler(randomPitch, randomYaw, 0) * firePosition.forward).normalized);
 
             if (Physics.Raycast(ray, out rhit, maxFireDistance))
             {
                 Bubble newBubble = new Bubble();
                 newBubble.pos = firePosition.position;
                 newBubble.target = rhit.point;
+                newBubble.decayTime = decayTime;
 
                 _nativeBubbles.Add(newBubble);
             }
         }
+
+        lastFireTime = Time.time;
     }
 
     private void Update()
     {
-        /*
-        JobHandle jobHandle = bubbleFunctionJob.Schedule(_nativeBubbles.Length, 50);
+        if (_nativeBubbles.IsEmpty)
+            return;
 
-        jobHandle.Complete();
+        _nativeBubbleMatrices = new NativeList<Matrix4x4>(_nativeBubbles.Capacity, Allocator.TempJob);
 
-        Graphics.RenderMeshInstanced(renderParams, bubbleMesh, 0, _nativeBubbleMatrices.AsArray());
+        bubbleFunctionJob.BubblesList = _nativeBubbles.AsDeferredJobArray();
+        bubbleFunctionJob.BubbleMatrices = _nativeBubbleMatrices.AsParallelWriter();
+        bubbleFunctionJob.moveAmount = bubbleMovement;
+        bubbleFunctionJob.bubbleScale = new float3(bubbleSize, bubbleSize, bubbleSize);
+        bubbleFunctionJob.deltaTime = Time.deltaTime;
+
+        var bubbleFuncHandle = bubbleFunctionJob.Schedule(_nativeBubbles.Length, 50);
+        bubbleFuncHandle.Complete();
+
+        NativeList<Bubble> FilteredBubbles = new NativeList<Bubble>(_nativeBubbles.Length, Allocator.TempJob);
+
+        var bubbleFilterHandle = bubbleFilterJob.Schedule(_nativeBubbles.Length, 50, bubbleFuncHandle);
+        bubbleFilterHandle.Complete();
+
+        if (_nativeBubbleMatrices.IsCreated)
+            Graphics.RenderMeshInstanced(renderParams, bubbleMesh, 0, _nativeBubbleMatrices.AsArray());
 
         _nativeBubbleMatrices.Dispose();
-        */
+    }
+
+    private void OnDrawGizmos()
+    {
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawRay(firePosition.position, firePosition.forward * maxFireDistance);
     }
 }
