@@ -1,3 +1,4 @@
+using UnityEditor.Rendering.LookDev;
 using UnityEngine;
 #if ENABLE_INPUT_SYSTEM
 using UnityEngine.InputSystem;
@@ -13,6 +14,10 @@ namespace StarterAssets
 		public bool jump;
 		public bool sprint;
 
+		public bool interact;
+
+		public bool shoot;
+
 		[Header("Movement Settings")]
 		public bool analogMovement;
 
@@ -21,27 +26,42 @@ namespace StarterAssets
 		public bool cursorInputForLook = true;
 
 #if ENABLE_INPUT_SYSTEM
-		public void OnMove(InputValue value)
+		public void Awake()
 		{
-			MoveInput(value.Get<Vector2>());
+
 		}
 
-		public void OnLook(InputValue value)
+		public void OnMove(InputAction.CallbackContext context)
 		{
-			if(cursorInputForLook)
+			MoveInput(context.ReadValue<Vector2>());
+		}
+
+		public void OnLook(InputAction.CallbackContext context)
+		{
+			if (cursorInputForLook)
 			{
-				LookInput(value.Get<Vector2>());
+				LookInput(context.ReadValue<Vector2>());
 			}
 		}
 
-		public void OnJump(InputValue value)
+		public void OnJump(InputAction.CallbackContext context)
 		{
-			JumpInput(value.isPressed);
+			JumpInput(context.ReadValueAsButton());
 		}
 
-		public void OnSprint(InputValue value)
+		public void OnSprint(InputAction.CallbackContext context)
 		{
-			SprintInput(value.isPressed);
+			SprintInput(context.ReadValueAsButton());
+		}
+
+		public void OnInteract(InputAction.CallbackContext context)
+		{
+			InteractInput(context.ReadValueAsButton());
+		}
+
+		public void OnShoot(InputAction.CallbackContext context)
+		{
+			ShootInput(context.ReadValueAsButton());
 		}
 #endif
 
@@ -49,7 +69,7 @@ namespace StarterAssets
 		public void MoveInput(Vector2 newMoveDirection)
 		{
 			move = newMoveDirection;
-		} 
+		}
 
 		public void LookInput(Vector2 newLookDirection)
 		{
@@ -65,7 +85,17 @@ namespace StarterAssets
 		{
 			sprint = newSprintState;
 		}
-		
+
+		public void InteractInput(bool newInteractState)
+		{
+			interact = newInteractState;
+		}
+
+		public void ShootInput(bool newShootState)
+		{
+			shoot = newShootState;
+		}
+
 		private void OnApplicationFocus(bool hasFocus)
 		{
 			SetCursorState(cursorLocked);
@@ -76,5 +106,5 @@ namespace StarterAssets
 			Cursor.lockState = newState ? CursorLockMode.Locked : CursorLockMode.None;
 		}
 	}
-	
+
 }
