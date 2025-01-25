@@ -48,5 +48,7 @@ public class PlayerInteraction : MonoBehaviour
         {
             bubbleGun.FireGun();
         }
+
+
     }
 }

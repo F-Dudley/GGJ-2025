@@ -22,7 +22,9 @@ public class BubbleGun : MonoBehaviour
     [Header("Bubble Settings")]
     [SerializeField] private float bubbleMovement = 0.5f;
     [SerializeField] private float bubbleSize = 0.01f;
-    [SerializeField] private float decayTime = 4.0f;
+
+    [SerializeField] private float minDecayTime = 1.0f;
+    [SerializeField] private float maxDecayTime = 4.0f;
     [SerializeField] private Mesh bubbleMesh;
     [SerializeField] private Material bubbleMat;
     private NativeList<Bubble> _nativeBubbles;
@@ -74,7 +76,7 @@ public class BubbleGun : MonoBehaviour
                 Bubble newBubble = new Bubble();
                 newBubble.pos = firePosition.position;
                 newBubble.target = rhit.point;
-                newBubble.decayTime = decayTime;
+                newBubble.decayTime = UnityEngine.Random.Range(minDecayTime, maxDecayTime);
 
                 _nativeBubbles.Add(newBubble);
             }
