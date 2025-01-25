@@ -454,7 +454,7 @@ MonoBehaviour:
   spreadAmount: {x: 45, y: 60}
   rayAmount: 20
   bubbleMovement: 0.8
-  bubbleSize: 0.05
+  bubbleSize: 0.1
   minDecayTime: 4
   maxDecayTime: 20
   bubbleMesh: {fileID: 10207, guid: 0000000000000000e000000000000000, type: 0}

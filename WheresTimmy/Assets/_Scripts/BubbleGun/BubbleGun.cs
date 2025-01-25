@@ -40,6 +40,7 @@ public class BubbleGun : MonoBehaviour, IInteractable
 
     private void Start()
     {
+        gunCollider = GetComponent<Collider>();
         lastFireTime = Time.time;
 
         _nativeBubbles = new NativeList<Bubble>(Allocator.Persistent);
@@ -103,7 +104,7 @@ public class BubbleGun : MonoBehaviour, IInteractable
         // Apply Movement and Decay to Initialized Bubbles
         //
 
-        _nativeBubbleMatrices = new NativeList<Matrix4x4>(_nativeBubbles.Capacity, Allocator.TempJob);
+        _nativeBubbleMatrices = new NativeList<Matrix4x4>(_nativeBubbles.Length, Allocator.TempJob);
 
         bubbleFunctionJob.BubblesList = _nativeBubbles.AsDeferredJobArray();
         bubbleFunctionJob.BubbleMatrices = _nativeBubbleMatrices.AsParallelWriter();
@@ -125,7 +126,7 @@ public class BubbleGun : MonoBehaviour, IInteractable
         // Apply Bubble Filtering on Decayed Bubbles
         //
 
-        NativeList<Bubble> FilteredBubbles = new NativeList<Bubble>(_nativeBubbles.Capacity, Allocator.TempJob);
+        NativeList<Bubble> FilteredBubbles = new NativeList<Bubble>(Mathf.Max(_nativeBubbles.Capacity, 100000), Allocator.TempJob);
 
         bubbleFilterJob.FilteredBubbles = FilteredBubbles.AsParallelWriter();
         bubbleFilterJob.BubblesList = _nativeBubbles.AsDeferredJobArray();
@@ -133,6 +134,7 @@ public class BubbleGun : MonoBehaviour, IInteractable
         var bubbleFilterHandle = bubbleFilterJob.Schedule(_nativeBubbles.Length, 50, bubbleFuncHandle);
         bubbleFilterHandle.Complete();
 
+        _nativeBubbles.Dispose();
         _nativeBubbles = FilteredBubbles;
 
         //FilteredBubbles.Dispose();
@@ -143,6 +145,8 @@ public class BubbleGun : MonoBehaviour, IInteractable
     public void Interact(PlayerInteraction player)
     {
         gameObject.layer = LayerMask.GetMask("Default");
+        gunCollider.enabled = false;
+
         gameObject.transform.SetParent(player.GetBubbleHeldLocation());
 
         gameObject.transform.DOLocalRotate(Vector3.zero, 0.2f);
