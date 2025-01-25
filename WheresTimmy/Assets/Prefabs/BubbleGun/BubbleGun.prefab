@@ -197,7 +197,7 @@ Transform:
   m_GameObject: {fileID: 2798912842728113038}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -0.0007, y: 0.0888472, z: 0.4473}
+  m_LocalPosition: {x: -0.0007, y: 0.0888472, z: 0.55}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -449,13 +449,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   fireCooldown: 0.01
-  maxFireDistance: 25
+  maxFireDistance: 100
   firePosition: {fileID: 3287398228673947522}
-  spreadAmount: {x: 45, y: 60}
-  rayAmount: 20
-  bubbleMovement: 0.8
+  spreadAmount: {x: 23, y: 23}
+  rayAmount: 30
+  bubbleMovement: 1
   bubbleSize: 0.1
-  minDecayTime: 4
+  minDecayTime: 8
   maxDecayTime: 20
   bubbleMesh: {fileID: 10207, guid: 0000000000000000e000000000000000, type: 0}
   bubbleMat: {fileID: 2100000, guid: 32e06e0d830982442abb9c0fe324b709, type: 2}
