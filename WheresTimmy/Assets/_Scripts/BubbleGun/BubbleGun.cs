@@ -64,12 +64,17 @@ public class BubbleGun : MonoBehaviour
         Ray ray;
         RaycastHit rhit;
 
+        Vector3 scaledSpreadAmount = spreadAmount * Mathf.Deg2Rad;
+
         for (int i = 0; i < rayAmount; i++)
         {
-            float randomYaw = UnityEngine.Random.Range(-spreadAmount.x, spreadAmount.x);
-            float randomPitch = UnityEngine.Random.Range(-spreadAmount.y, spreadAmount.y);
+            float randomYaw = UnityEngine.Random.Range(-scaledSpreadAmount.x, scaledSpreadAmount.x);
+            float randomPitch = UnityEngine.Random.Range(-scaledSpreadAmount.y, scaledSpreadAmount.y);
 
-            ray = new Ray(firePosition.position, (Quaternion.Euler(randomPitch, randomYaw, 0) * firePosition.forward).normalized);
+            Vector3 pitchOffset = firePosition.up * randomPitch;
+            Vector3 yawOffset = firePosition.right * randomYaw;
+
+            ray = new Ray(firePosition.position, (firePosition.forward + yawOffset + pitchOffset).normalized);
 
             if (Physics.Raycast(ray, out rhit, maxFireDistance))
             {

@@ -47,6 +47,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4a8e0cad49059cf4c82404f477e9c274, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  interactOnce: 0
+  _event:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!114 &1220518585161281642
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -62,7 +66,7 @@ MonoBehaviour:
   fireCooldown: 0.01
   maxFireDistance: 25
   firePosition: {fileID: 2647076614938987596}
-  spreadAmount: {x: 15, y: 25}
+  spreadAmount: {x: 45, y: 60}
   rayAmount: 20
   bubbleMovement: 0.8
   bubbleSize: 0.05

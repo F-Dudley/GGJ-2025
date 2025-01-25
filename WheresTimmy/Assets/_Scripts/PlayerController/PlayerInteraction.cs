@@ -7,7 +7,7 @@ public class PlayerInteraction : MonoBehaviour
     [Header("Iteraction Settings")]
     [SerializeField] Camera playerCamera;
     [SerializeField] private float interactDistance;
-    [SerializeField] private float interactWidth;
+    [SerializeField] private float interactSpread;
 
     [SerializeField] private LayerMask interactLayer;
 
@@ -38,11 +38,7 @@ public class PlayerInteraction : MonoBehaviour
             return;
         }
 
-        Vector3 screenPoint = new Vector3(playerCamera.pixelWidth / 2, playerCamera.pixelHeight / 2, playerCamera.nearClipPlane);
-
-        camCentrePos = playerCamera.ScreenToWorldPoint(screenPoint);
-
-        if (Physics.Raycast(camCentrePos, playerCamera.transform.forward, out rhit, interactDistance, interactLayer))
+        if (Physics.SphereCast(camCentrePos, interactSpread / 2, playerCamera.transform.forward, out rhit, interactDistance, interactLayer))
         {
             InteractableInteraction();
         }
@@ -81,8 +77,22 @@ public class PlayerInteraction : MonoBehaviour
 
     private void OnDrawGizmos()
     {
-        Gizmos.color = Color.yellow;
+        Gizmos.color = Color.red;
 
-        Gizmos.DrawRay(camCentrePos, playerCamera.transform.forward * interactDistance);
+        Vector3 centreCam = playerCamera.ViewportToWorldPoint(new Vector3(0.5f, 0.5f, playerCamera.nearClipPlane));
+
+        Vector3 sphereForwardOffset = playerCamera.transform.forward * interactDistance;
+
+        Gizmos.DrawWireSphere(centreCam, interactSpread / 2);
+        Gizmos.DrawWireSphere(centreCam + sphereForwardOffset, interactSpread / 2);
+
+        // Wires
+        Vector3 sphereHalfOffset = (playerCamera.transform.up * interactSpread / 2);
+
+        // Top
+        Gizmos.DrawLine(centreCam + sphereHalfOffset, (centreCam + sphereHalfOffset) + sphereForwardOffset);
+
+        // Bot
+        Gizmos.DrawLine(centreCam - sphereHalfOffset, (centreCam - sphereHalfOffset) + sphereForwardOffset);
     }
 }

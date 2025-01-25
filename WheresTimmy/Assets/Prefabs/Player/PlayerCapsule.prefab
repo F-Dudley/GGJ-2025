@@ -246,11 +246,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   playerCamera: {fileID: 0}
-  interactDistance: 3
-  interactWidth: 0
+  interactDistance: 7
+  interactSpread: 1
   interactLayer:
     serializedVersion: 2
     m_Bits: 0
+  bgunHeldLocation: {fileID: 0}
+  bgun: {fileID: 0}
 --- !u!114 &5420857361349278248
 MonoBehaviour:
   m_ObjectHideFlags: 0
