@@ -1,5 +1,6 @@
 using UnityEngine;
 using StarterAssets;
+using UnityEditor.Build.Pipeline;
 
 public class PlayerInteraction : MonoBehaviour
 {
@@ -15,8 +16,12 @@ public class PlayerInteraction : MonoBehaviour
 
     private StarterAssetsInputs _input;
 
-    [Header("Bubble Gun Interaction")]
-    [SerializeField] private BubbleGun bubbleGun;
+    [Header("Interaction Debug")]
+    private Vector3 camCentrePos;
+
+    [Header("Bubble Gun")]
+    [SerializeField] private Transform bgunHeldLocation;
+    [SerializeField] private BubbleGun bgun;
 
     private void Awake()
     {
@@ -33,22 +38,51 @@ public class PlayerInteraction : MonoBehaviour
             return;
         }
 
-        Vector3 camCentre = playerCamera.ScreenToWorldPoint(new Vector3(playerCamera.pixelWidth / 2, playerCamera.pixelHeight / 2, playerCamera.nearClipPlane));
+        Vector3 screenPoint = new Vector3(playerCamera.pixelWidth / 2, playerCamera.pixelHeight / 2, playerCamera.nearClipPlane);
 
-        if (Physics.Raycast(camCentre, playerCamera.transform.forward, out rhit, interactDistance, interactLayer))
+        camCentrePos = playerCamera.ScreenToWorldPoint(screenPoint);
+
+        if (Physics.Raycast(camCentrePos, playerCamera.transform.forward, out rhit, interactDistance, interactLayer))
         {
-            if (rhit.collider.gameObject.TryGetComponent<Interactable>(out fInteractable))
-            {
-                // Something with the object.
-            }
+            InteractableInteraction();
         }
 
-        bool inputValid = _input != null && _input.shoot;
-        if (inputValid && bubbleGun != null)
+        if (bgun != null)
+            BubbleGunInteraction();
+    }
+
+    #region Interactable Interaction
+
+    private void InteractableInteraction()
+    {
+        if (rhit.collider.TryGetComponent<Interactable>(out fInteractable) && fInteractable.enabled)
         {
-            bubbleGun.FireGun();
+            fInteractable.Interact(this);
         }
 
+        fInteractable = null;
+    }
 
+    #endregion
+
+    #region Bubble Gun
+
+    public Transform GetBubbleHeldLocation()
+    {
+        return bgunHeldLocation;
+    }
+    private void BubbleGunInteraction()
+    {
+        if (_input != null && _input.shoot)
+            bgun.FireGun();
+    }
+
+    #endregion
+
+    private void OnDrawGizmos()
+    {
+        Gizmos.color = Color.yellow;
+
+        Gizmos.DrawRay(camCentrePos, playerCamera.transform.forward * interactDistance);
     }
 }
