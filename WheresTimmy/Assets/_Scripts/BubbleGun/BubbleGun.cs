@@ -1,10 +1,11 @@
+using DG.Tweening;
 using Unity.Collections;
 using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.VisualScripting;
 using UnityEngine;
 
-public class BubbleGun : MonoBehaviour
+public class BubbleGun : MonoBehaviour, IInteractable
 
 {
     [Header("Shoot Settings")]
@@ -33,6 +34,9 @@ public class BubbleGun : MonoBehaviour
     private BubbleFunctionJob bubbleFunctionJob;
     private BubbleFilterJob bubbleFilterJob;
     private RenderParams renderParams;
+
+    [Header("Interaction Settings")]
+    [SerializeField] private Collider gunCollider;
 
     private void Start()
     {
@@ -64,12 +68,17 @@ public class BubbleGun : MonoBehaviour
         Ray ray;
         RaycastHit rhit;
 
+        Vector3 scaledSpreadAmount = spreadAmount * Mathf.Deg2Rad;
+
         for (int i = 0; i < rayAmount; i++)
         {
-            float randomYaw = UnityEngine.Random.Range(-spreadAmount.x, spreadAmount.x);
-            float randomPitch = UnityEngine.Random.Range(-spreadAmount.y, spreadAmount.y);
+            float randomYaw = UnityEngine.Random.Range(-scaledSpreadAmount.x, scaledSpreadAmount.x);
+            float randomPitch = UnityEngine.Random.Range(-scaledSpreadAmount.y, scaledSpreadAmount.y);
 
-            ray = new Ray(firePosition.position, (Quaternion.Euler(randomPitch, randomYaw, 0) * firePosition.forward).normalized);
+            Vector3 pitchOffset = firePosition.up * randomPitch;
+            Vector3 yawOffset = firePosition.right * randomYaw;
+
+            ray = new Ray(firePosition.position, (firePosition.forward + yawOffset + pitchOffset).normalized);
 
             if (Physics.Raycast(ray, out rhit, maxFireDistance))
             {
@@ -129,6 +138,19 @@ public class BubbleGun : MonoBehaviour
         //FilteredBubbles.Dispose();
 
         Debug.Log("Filtered Amount: " + FilteredBubbles.Length);
+    }
+
+    public void Interact(PlayerInteraction player)
+    {
+        gameObject.layer = LayerMask.GetMask("Default");
+        gameObject.transform.SetParent(player.GetBubbleHeldLocation());
+
+        gameObject.transform.DOLocalRotate(Vector3.zero, 0.2f);
+        gameObject.transform.DOLocalMove(Vector3.zero, 0.25f).OnComplete(() =>
+        {
+            Debug.Log("Gun Obtained");
+            player.SetBubbleGun(this);
+        });
     }
 
     private void OnDrawGizmos()

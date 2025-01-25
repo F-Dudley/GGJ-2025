@@ -1,22 +1,28 @@
 using UnityEngine;
 using StarterAssets;
+using UnityEditor.Build.Pipeline;
+using UnityEditor.UI;
 
 public class PlayerInteraction : MonoBehaviour
 {
     [Header("Iteraction Settings")]
     [SerializeField] Camera playerCamera;
     [SerializeField] private float interactDistance;
-    [SerializeField] private float interactWidth;
+    [SerializeField] private float interactSpread;
 
     [SerializeField] private LayerMask interactLayer;
 
     private RaycastHit rhit;
-    private Interactable fInteractable;
+    private IInteractable fInteractable;
 
     private StarterAssetsInputs _input;
 
-    [Header("Bubble Gun Interaction")]
-    [SerializeField] private BubbleGun bubbleGun;
+    [Header("Interaction Debug")]
+    private Vector3 camCentrePos;
+
+    [Header("Bubble Gun")]
+    [SerializeField] private Transform bgunHeldLocation;
+    [SerializeField] private BubbleGun bgun;
 
     private void Awake()
     {
@@ -33,22 +39,71 @@ public class PlayerInteraction : MonoBehaviour
             return;
         }
 
-        Vector3 camCentre = playerCamera.ScreenToWorldPoint(new Vector3(playerCamera.pixelWidth / 2, playerCamera.pixelHeight / 2, playerCamera.nearClipPlane));
+        camCentrePos = playerCamera.ViewportToWorldPoint(new Vector3(0.5f, 0.5f, playerCamera.nearClipPlane));
 
-        if (Physics.Raycast(camCentre, playerCamera.transform.forward, out rhit, interactDistance, interactLayer))
+        if (Physics.SphereCast(camCentrePos, interactSpread / 2, playerCamera.transform.forward, out rhit, interactDistance, interactLayer))
         {
-            if (rhit.collider.gameObject.TryGetComponent<Interactable>(out fInteractable))
-            {
-                // Something with the object.
-            }
+            InteractableInteraction();
         }
 
-        bool inputValid = _input != null && _input.shoot;
-        if (inputValid && bubbleGun != null)
+        if (bgun != null)
+            BubbleGunInteraction();
+    }
+
+    #region Interactable Interaction
+
+    private void InteractableInteraction()
+    {
+        if (_input == null || !_input.interact)
+            return;
+
+        if (rhit.collider.TryGetComponent<IInteractable>(out fInteractable))
         {
-            bubbleGun.FireGun();
+            Debug.Log("Interacting With Object");
+            fInteractable.Interact(this);
         }
 
+        fInteractable = null;
+    }
 
+    #endregion
+
+    #region Bubble Gun
+    public void SetBubbleGun(BubbleGun bGun)
+    {
+        this.bgun = bGun;
+    }
+
+    public Transform GetBubbleHeldLocation()
+    {
+        return bgunHeldLocation;
+    }
+    private void BubbleGunInteraction()
+    {
+        if (_input != null && _input.shoot)
+            bgun.FireGun();
+    }
+
+    #endregion
+
+    private void OnDrawGizmos()
+    {
+        Gizmos.color = Color.red;
+
+        Vector3 centreCam = playerCamera.ViewportToWorldPoint(new Vector3(0.5f, 0.5f, playerCamera.nearClipPlane));
+
+        Vector3 sphereForwardOffset = playerCamera.transform.forward * interactDistance;
+
+        Gizmos.DrawWireSphere(centreCam, interactSpread / 2);
+        Gizmos.DrawWireSphere(centreCam + sphereForwardOffset, interactSpread / 2);
+
+        // Wires
+        Vector3 sphereHalfOffset = (playerCamera.transform.up * interactSpread / 2);
+
+        // Top
+        Gizmos.DrawLine(centreCam + sphereHalfOffset, (centreCam + sphereHalfOffset) + sphereForwardOffset);
+
+        // Bot
+        Gizmos.DrawLine(centreCam - sphereHalfOffset, (centreCam - sphereHalfOffset) + sphereForwardOffset);
     }
 }
