@@ -1,6 +1,7 @@
 using UnityEngine;
 using StarterAssets;
 using UnityEditor.Build.Pipeline;
+using UnityEditor.UI;
 
 public class PlayerInteraction : MonoBehaviour
 {
@@ -42,7 +43,6 @@ public class PlayerInteraction : MonoBehaviour
 
         if (Physics.SphereCast(camCentrePos, interactSpread / 2, playerCamera.transform.forward, out rhit, interactDistance, interactLayer))
         {
-            Debug.Log("Interacting Found");
             InteractableInteraction();
         }
 
@@ -69,6 +69,10 @@ public class PlayerInteraction : MonoBehaviour
     #endregion
 
     #region Bubble Gun
+    public void SetBubbleGun(BubbleGun bGun)
+    {
+        this.bgun = bGun;
+    }
 
     public Transform GetBubbleHeldLocation()
     {
