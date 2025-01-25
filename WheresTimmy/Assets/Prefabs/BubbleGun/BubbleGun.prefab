@@ -71,7 +71,7 @@ MonoBehaviour:
   bubbleMovement: 0.8
   bubbleSize: 0.05
   minDecayTime: 4
-  maxDecayTime: 12
+  maxDecayTime: 20
   bubbleMesh: {fileID: 10207, guid: 0000000000000000e000000000000000, type: 0}
   bubbleMat: {fileID: 2100000, guid: 32e06e0d830982442abb9c0fe324b709, type: 2}
 --- !u!1 &7933220864896888387

@@ -12,7 +12,7 @@ public class PlayerInteraction : MonoBehaviour
     [SerializeField] private LayerMask interactLayer;
 
     private RaycastHit rhit;
-    private Interactable fInteractable;
+    private IInteractable fInteractable;
 
     private StarterAssetsInputs _input;
 
@@ -38,8 +38,11 @@ public class PlayerInteraction : MonoBehaviour
             return;
         }
 
+        camCentrePos = playerCamera.ViewportToWorldPoint(new Vector3(0.5f, 0.5f, playerCamera.nearClipPlane));
+
         if (Physics.SphereCast(camCentrePos, interactSpread / 2, playerCamera.transform.forward, out rhit, interactDistance, interactLayer))
         {
+            Debug.Log("Interacting Found");
             InteractableInteraction();
         }
 
@@ -51,8 +54,12 @@ public class PlayerInteraction : MonoBehaviour
 
     private void InteractableInteraction()
     {
-        if (rhit.collider.TryGetComponent<Interactable>(out fInteractable) && fInteractable.enabled)
+        if (_input == null || !_input.interact)
+            return;
+
+        if (rhit.collider.TryGetComponent<IInteractable>(out fInteractable))
         {
+            Debug.Log("Interacting With Object");
             fInteractable.Interact(this);
         }
 
