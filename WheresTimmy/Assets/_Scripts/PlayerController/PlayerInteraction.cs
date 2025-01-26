@@ -81,7 +81,15 @@ public class PlayerInteraction : MonoBehaviour
     private void BubbleGunInteraction()
     {
         if (_input != null && _input.shoot)
+        {
+            bgun.PlayAudio();
             bgun.FireGun();
+        }
+        else
+        {
+            bgun.StopAudio();
+        }
+
     }
 
     #endregion
