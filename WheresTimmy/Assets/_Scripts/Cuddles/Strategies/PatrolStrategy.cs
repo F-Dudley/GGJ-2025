@@ -29,7 +29,9 @@ namespace BT.Strategies
 
             if (isPathCalculated && agent.ArrivedAtDestination)
             {
-                currentIndex++;
+                currentIndex += 1;
+                currentIndex %= agent.KeyLocationAmount;
+
                 isPathCalculated = false;
             }
 

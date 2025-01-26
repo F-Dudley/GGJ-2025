@@ -6,16 +6,25 @@ namespace BT.Strategies
 {
     public class ChaseStrategy : IStrategy
     {
-        readonly float targetDistance;
-
-        public ChaseStrategy(float targetDistance = 0.1f)
+        public ChaseStrategy()
         {
-            this.targetDistance = targetDistance;
+
         }
 
         public ProcessStatus Process(Agent agent)
         {
+            Player target = agent.GetTarget();
 
+            if (target == null || agent.Aggression <= 40.0f)
+                return ProcessStatus.Failure;
+
+            Debug.Log("CHASING THE PLAYER");
+
+            if (agent.WithinAttackRange())
+                return ProcessStatus.Success;
+
+            agent.SetNavDestination(target.transform.position);
+            agent.LookAt(target.transform.position);
 
             return ProcessStatus.Running;
         }

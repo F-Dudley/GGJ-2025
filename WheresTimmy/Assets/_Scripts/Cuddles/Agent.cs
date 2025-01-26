@@ -16,17 +16,22 @@ namespace BT
 
         [Header("Aggresion")]
         [SerializeField] private float _aggression = 0.0f;
-        float Aggression
+        public float Aggression
         {
             get => _aggression;
             set
             {
-                _aggression = value;
+                _aggression = Mathf.Clamp(value, 0, 100.0f);
+                if (brokenJukeSource != null) brokenJukeSource.volume = _aggression / 100.0f;
             }
         }
 
         [SerializeField] private float aggressionGain = 4f;
 
+        [SerializeField] private float aggressionDistance = 1.5f;
+        [SerializeField] private float attackDistance = 1.0f;
+
+        [SerializeField] private Player targetPlayer;
 
 
         [Header("Patrol Settings")]
@@ -39,6 +44,13 @@ namespace BT
         [SerializeField] private NavMeshAgent navAgent;
         [SerializeField] private float navDistance = 0.05f;
 
+        [Header("Sensor")]
+        [SerializeField] private float senseRadius;
+        [SerializeField] private LayerMask playerMask;
+
+        [Header("Misc")]
+        [SerializeField] private AudioSource brokenJukeSource;
+
         public void Awake()
         {
             navAgent = GetComponent<NavMeshAgent>();
@@ -48,9 +60,27 @@ namespace BT
 
         private void Update()
         {
-            tree.Process(this);
+            SenseSurroundings();
 
-            Debug.Log("Distance From Target: " + navAgent.remainingDistance);
+            switch (tree.Process(this))
+            {
+                case ProcessStatus.Success:
+                    tree.Reset();
+                    break;
+
+                default:
+                    break;
+            }
+        }
+
+        private void OnDrawGizmos()
+        {
+            Gizmos.color = Color.blue;
+            Gizmos.DrawWireSphere(transform.position, senseRadius);
+
+            Gizmos.color = Color.red;
+
+            Gizmos.DrawWireSphere(transform.position, aggressionDistance);
         }
 
         private void BuildBehaviourTree()
@@ -63,21 +93,20 @@ namespace BT
             Sequential aggroSeq = new Sequential("Aggro Sequential", 50);
 
             aggroSeq.AddChild(new Leaf("IsAggresive", new ConditionStrategy(() => this.Aggression > 80.0f)));
-            aggroSeq.AddChild(new Leaf("Chase Player", new ChaseStrategy()));
+            aggroSeq.AddChild(new Leaf("Chase Target", new ChaseStrategy()));
+            aggroSeq.AddChild(new Leaf("Attack Target", new AttackStrategy()));
+
+            prioSelector.AddChild(aggroSeq);
 
             // Aggresion Gain
             Sequential playerRangeAggro = new Sequential("Player Within Aggro Range", 30);
-            playerRangeAggro.AddChild(new Leaf("Player Within Range", new ConditionStrategy(() => false)));
-            playerRangeAggro.AddChild(new Leaf("Aggression Gain", new ActionStrategy(() =>
-            {
-                navAgent.ResetPath();
-                Aggression += aggressionGain * Time.deltaTime;
-            })));
+            playerRangeAggro.AddChild(new Leaf("Player Within Range", new ConditionStrategy(() => TargetDistance() < aggressionDistance)));
+            playerRangeAggro.AddChild(new Leaf("Aggression Gain", new BuildAggroStrategy()));
 
             prioSelector.AddChild(playerRangeAggro);
 
             // Patrol Sequence
-            Sequential patrolSeq = new Sequential("Patrol Sequence", 10);
+            Sequential patrolSeq = new Sequential("Patrol Sequence", 0);
             patrolSeq.AddChild(new Leaf("Has Key Locations", new ConditionStrategy(() => this.KeyLocationAmount != 0)));
             patrolSeq.AddChild(new Leaf("Patrol Strategy", new PatrolStrategy()));
 
@@ -98,6 +127,36 @@ namespace BT
             return keyAgentLocations[index % keyAgentLocations.Count].position;
         }
 
+        public void GainAggression()
+        {
+            Aggression += aggressionGain * Time.deltaTime;
+        }
+
+        public float TargetDistance()
+        {
+            if (targetPlayer != null)
+            {
+                float dist = Vector3.Distance(transform.position, targetPlayer.transform.position);
+                Debug.Log("Target Dist: " + dist);
+
+                return dist;
+            }
+
+            return float.MaxValue;
+        }
+
+        public bool WithinAggressionRange()
+        {
+            return TargetDistance() < aggressionDistance;
+        }
+
+        public bool WithinAttackRange()
+        {
+            return TargetDistance() < attackDistance;
+        }
+
+        public Player GetTarget() => targetPlayer;
+
         #endregion
 
 
@@ -115,10 +174,32 @@ namespace BT
             navAgent.SetDestination(targetPosition);
         }
 
+        public void ResetNavDestination()
+        {
+            navAgent.ResetPath();
+        }
+
         public bool PendingNavPath => navAgent.pathPending;
 
         public bool ArrivedAtDestination => navAgent.remainingDistance < navDistance;
-    }
 
-    #endregion
+        #endregion
+
+        private void SenseSurroundings()
+        {
+            targetPlayer = null;
+            Collider[] cols = Physics.OverlapSphere(transform.position, senseRadius, playerMask);
+            if (cols.Length == 0)
+                return;
+
+            foreach (Collider col in cols)
+            {
+                if (col.TryGetComponent<Player>(out targetPlayer))
+                {
+                    if (targetPlayer != null)
+                        break;
+                }
+            }
+        }
+    }
 }
