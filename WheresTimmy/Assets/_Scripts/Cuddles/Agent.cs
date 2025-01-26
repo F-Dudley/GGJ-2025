@@ -47,7 +47,9 @@ namespace BT
 
         [Header("Misc")]
         [SerializeField] private float maxJukeBoxVolume = 0.6f;
+        [SerializeField] private float biteClipScale = 1.0f;
         [SerializeField] private AudioSource brokenJukeSource;
+        [SerializeField] private AudioClip biteAudio;
 
         public void Awake()
         {
@@ -219,6 +221,11 @@ namespace BT
                         break;
                 }
             }
+        }
+
+        public void PlayBiteSound()
+        {
+            brokenJukeSource.PlayOneShot(biteAudio, biteClipScale);
         }
     }
 }
