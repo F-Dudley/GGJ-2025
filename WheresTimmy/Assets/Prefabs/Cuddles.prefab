@@ -613,9 +613,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   speed: 2
-  _aggression: 20
+  _aggression: 0
   _minAggression: 0
-  aggressionGain: 4
+  aggressionGain: 8
   aggressionDistance: 10
   attackDistance: 3
   targetPlayer: {fileID: 0}
@@ -637,7 +637,7 @@ NavMeshAgent:
   m_Enabled: 1
   m_AgentTypeID: -1372625422
   m_Radius: 0.5
-  m_Speed: 2.25
+  m_Speed: 4
   m_Acceleration: 5
   avoidancePriority: 50
   m_AngularSpeed: 4

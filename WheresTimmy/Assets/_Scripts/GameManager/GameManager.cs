@@ -19,7 +19,7 @@ public class GameManager : MonoBehaviour
     [SerializeField] private Sprite bodyPartSprite;
 
     [Header("Cuddles")]
-    [SerializeField] private Agent cuddlesAgent;
+    [SerializeField] private Agent[] cuddlesAgents;
 
     [Header("Exit Objects")]
     [SerializeField] private GameObject winTrigggerVolume;
@@ -46,17 +46,13 @@ public class GameManager : MonoBehaviour
     {
         partsRemaining--;
 
-        cuddlesAgent.MinAggression += aggressionMinIncrease;
-
-        PartPickedUpEvent?.Invoke();
-
-        /*
-        switch (partID)
+        foreach (Agent cuddlesAgent in cuddlesAgents)
         {
-            case BearPart.HEAD:
-                headPartSprite.
+            cuddlesAgent.MinAggression += aggressionMinIncrease;
+
+            PartPickedUpEvent?.Invoke();
         }
-        */
+
         if (AllCollected())
         {
             winTrigggerVolume.SetActive(true);
