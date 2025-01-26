@@ -3,11 +3,12 @@ using UnityEngine.Events;
 using DG.Tweening;
 using StarterAssets;
 
-enum BearPart
+public enum BearPart
 {
     HEAD,
-    L_ARM, BODY, R_ARM,
-    L_LEG, R_LEG
+    ARM,
+    BODY,
+    LEG
 }
 
 public class BearPickUp : MonoBehaviour, IInteractable

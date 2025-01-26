@@ -38,6 +38,10 @@ public class BubbleGun : MonoBehaviour, IInteractable
     [Header("Interaction Settings")]
     [SerializeField] private Collider gunCollider;
 
+    [Header("Sound")]
+    [SerializeField] private AudioSource audioSource;
+    [SerializeField] private AudioClip bubbleMotorAudio;
+
     private void Start()
     {
         gunCollider = GetComponent<Collider>();
@@ -155,6 +159,17 @@ public class BubbleGun : MonoBehaviour, IInteractable
             Debug.Log("Gun Obtained");
             player.SetBubbleGun(this);
         });
+    }
+
+    public void PlayAudio()
+    {
+        if (!audioSource.isPlaying)
+            audioSource.Play();
+    }
+
+    public void StopAudio()
+    {
+        audioSource.Stop();
     }
 
     private void OnDrawGizmos()
