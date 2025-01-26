@@ -1,7 +1,6 @@
 using UnityEngine;
 using UnityEngine.Events;
 using DG.Tweening;
-using StarterAssets;
 
 public enum BearPart
 {
