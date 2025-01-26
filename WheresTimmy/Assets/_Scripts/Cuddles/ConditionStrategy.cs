@@ -21,7 +21,7 @@ namespace BT.Strategies
 
         public void Reset()
         {
-            throw new System.NotImplementedException();
+            
         }
     }
 }
