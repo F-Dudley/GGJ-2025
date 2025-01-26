@@ -25,7 +25,7 @@ namespace BT.Strategies
 
             Vector3 target = agent.GetKeyLocation(currentIndex);
             agent.SetNavDestination(target);
-            agent.LookAt(target);
+            agent.LookAtAgentPath();
 
             if (isPathCalculated && agent.ArrivedAtDestination)
             {
