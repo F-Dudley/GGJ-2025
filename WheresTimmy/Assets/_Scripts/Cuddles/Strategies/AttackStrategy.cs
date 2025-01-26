@@ -18,7 +18,9 @@ namespace BT.Strategies
 
             Player target = agent.GetTarget();
 
+            agent.PlayBiteSound();
             target.AddHealth(-1);
+
             agent.Aggression = 0.0f;
 
             return ProcessStatus.Success;

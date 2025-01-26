@@ -612,9 +612,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7dc04e616c69eb6469d134c4250134e1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speed: 2
   _aggression: 0
-  _minAggression: 0
+  minAggression: 0
   aggressionGain: 8
   aggressionDistance: 10
   attackDistance: 3
@@ -626,7 +625,10 @@ MonoBehaviour:
   playerMask:
     serializedVersion: 2
     m_Bits: 128
+  maxJukeBoxVolume: 0.6
+  biteClipScale: 1.5
   brokenJukeSource: {fileID: 3963390814367919832}
+  biteAudio: {fileID: 8300000, guid: 1c0c2284d7d62dc47a807bff51dc2a02, type: 3}
 --- !u!195 &8762462232852113367
 NavMeshAgent:
   m_ObjectHideFlags: 0
