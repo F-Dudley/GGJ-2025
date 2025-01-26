@@ -25,9 +25,9 @@ public class BearPickUp : MonoBehaviour, IInteractable
 
     #region Unity Methods
 
-    private void Awake()
+    private void Start()
     {
-
+        GameManager.instance.RegisterPart(partID);
     }
 
     private void OnTriggerEnter(Collider other)

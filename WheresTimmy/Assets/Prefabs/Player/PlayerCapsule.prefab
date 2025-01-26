@@ -251,6 +251,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   health: 3
   maxHealth: 3
+  livesUI:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
   OnHealthChange:
     m_PersistentCalls:
       m_Calls: []
