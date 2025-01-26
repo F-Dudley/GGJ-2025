@@ -48,7 +48,7 @@ public class GameManager : MonoBehaviour
 
         foreach (Agent cuddlesAgent in cuddlesAgents)
         {
-            cuddlesAgent.MinAggression += aggressionMinIncrease;
+            cuddlesAgent.AddMinAggresion(aggressionMinIncrease);
 
             PartPickedUpEvent?.Invoke();
         }

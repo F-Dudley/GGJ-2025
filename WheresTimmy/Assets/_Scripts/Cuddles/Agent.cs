@@ -9,11 +9,6 @@ namespace BT
 {
     public class Agent : MonoBehaviour
     {
-
-        [Header("Agent Settings")]
-        [SerializeField] private float speed = 2.0f;
-
-
         [Header("Aggresion")]
         [SerializeField] private float _aggression = 0.0f;
         public float Aggression
@@ -21,21 +16,13 @@ namespace BT
             get => _aggression;
             set
             {
-                _aggression = Mathf.Clamp(value, MinAggression, 100.0f);
-                if (brokenJukeSource != null) brokenJukeSource.volume = Mathf.Clamp(_aggression / 100.0f, 0.0f, maxAudio);
+                _aggression = Mathf.Clamp(value, minAggression, 100.0f);
+                if (brokenJukeSource != null) brokenJukeSource.volume = Mathf.Clamp(_aggression / 100.0f, 0.0f, maxJukeBoxVolume);
             }
         }
 
-        [SerializeField] private float _minAggression = 0.0f;
-        public float MinAggression
-        {
-            get => _minAggression;
-            set
-            {
-                _minAggression = Mathf.Clamp(value, 0.0f, 100.0f);
-                Aggression = Mathf.Clamp(_aggression, _minAggression, 100.0f);
-            }
-        }
+        [SerializeField] private float minAggression = 0.0f;
+
 
         [SerializeField] private float aggressionGain = 4f;
         [SerializeField] private float aggressionDistance = 1.5f;
@@ -49,7 +36,6 @@ namespace BT
 
 
         private BehaviourTree tree;
-        private float maxAudio;
 
         [Header("Nav Settings")]
         [SerializeField] private NavMeshAgent navAgent;
@@ -60,16 +46,16 @@ namespace BT
         [SerializeField] private LayerMask playerMask;
 
         [Header("Misc")]
+        [SerializeField] private float maxJukeBoxVolume = 0.6f;
         [SerializeField] private AudioSource brokenJukeSource;
 
         public void Awake()
         {
             navAgent = GetComponent<NavMeshAgent>();
 
-            MinAggression = 0.0f;
+            minAggression = 0.0f;
             Aggression = 0.0f;
 
-            maxAudio = brokenJukeSource.volume * 100.0f;
             brokenJukeSource.volume = 0.0f;
 
             BuildBehaviourTree();
@@ -134,6 +120,12 @@ namespace BT
 
         #region Agent Traits
 
+        public void AddMinAggresion(float amountToIncrease)
+        {
+            minAggression += amountToIncrease;
+            Aggression = Mathf.Clamp(Aggression, minAggression, 100.0f);
+        }
+
         public int KeyLocationAmount => keyAgentLocations.Count;
 
         public Vector3 GetKeyLocation(int index)
@@ -184,6 +176,16 @@ namespace BT
             lookLocation.y = navAgent.destination.y;
 
             transform.LookAt(lookLocation);
+        }
+
+        public void LookAtAgentPath()
+        {
+            if (!navAgent.hasPath)
+                return;
+
+            Quaternion q = Quaternion.LookRotation(navAgent.velocity);
+
+            transform.rotation = Quaternion.Slerp(transform.rotation, q, 0.75f);
         }
 
         public void SetNavDestination(Vector3 targetPosition)
