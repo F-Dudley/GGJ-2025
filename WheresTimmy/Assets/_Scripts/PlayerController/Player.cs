@@ -3,6 +3,7 @@ using StarterAssets;
 using UnityEditor.Build.Pipeline;
 using UnityEditor.UI;
 using UnityEngine.Events;
+using System.Collections.Generic;
 
 public class Player : MonoBehaviour
 {
@@ -10,6 +11,7 @@ public class Player : MonoBehaviour
     [SerializeField] private int health;
 
     [SerializeField] private int maxHealth;
+    [SerializeField] private List<GameObject> livesUI;
 
     [SerializeField] private UnityEvent<int> OnHealthChange;
 
@@ -17,5 +19,7 @@ public class Player : MonoBehaviour
     {
         health = Mathf.Max(0, health + healthIncr);
         OnHealthChange?.Invoke(health);
+
+        livesUI[health].SetActive(false);
     }
 }
