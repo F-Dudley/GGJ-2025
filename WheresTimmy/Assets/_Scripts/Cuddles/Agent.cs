@@ -21,13 +21,23 @@ namespace BT
             get => _aggression;
             set
             {
-                _aggression = Mathf.Clamp(value, 0, 100.0f);
-                if (brokenJukeSource != null) brokenJukeSource.volume = _aggression / 100.0f;
+                _aggression = Mathf.Clamp(value, MinAggression, 100.0f);
+                if (brokenJukeSource != null) brokenJukeSource.volume = Mathf.Clamp(_aggression / 100.0f, 0.0f, maxAudio);
+            }
+        }
+
+        [SerializeField] private float _minAggression = 0.0f;
+        public float MinAggression
+        {
+            get => _minAggression;
+            set
+            {
+                _minAggression = Mathf.Clamp(value, 0.0f, 100.0f);
+                Aggression = Mathf.Clamp(_aggression, _minAggression, 100.0f);
             }
         }
 
         [SerializeField] private float aggressionGain = 4f;
-
         [SerializeField] private float aggressionDistance = 1.5f;
         [SerializeField] private float attackDistance = 1.0f;
 
@@ -39,6 +49,7 @@ namespace BT
 
 
         private BehaviourTree tree;
+        private float maxAudio;
 
         [Header("Nav Settings")]
         [SerializeField] private NavMeshAgent navAgent;
@@ -54,6 +65,12 @@ namespace BT
         public void Awake()
         {
             navAgent = GetComponent<NavMeshAgent>();
+
+            MinAggression = 0.0f;
+            Aggression = 0.0f;
+
+            maxAudio = brokenJukeSource.volume * 100.0f;
+            brokenJukeSource.volume = 0.0f;
 
             BuildBehaviourTree();
         }

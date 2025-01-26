@@ -3,7 +3,7 @@ using UnityEngine.Events;
 using DG.Tweening;
 using StarterAssets;
 
-enum BearPart
+public enum BearPart
 {
     HEAD,
     ARM,
