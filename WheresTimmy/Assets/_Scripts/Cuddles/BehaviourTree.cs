@@ -8,11 +8,11 @@ namespace BT
     {
         public BehaviourTree(string name) : base(name) { }
 
-        public override ProcessStatus Process(ref Agent agent)
+        public override ProcessStatus Process(Agent agent)
         {
             while (currentChild < children.Count)
             {
-                var status = children[currentChild].Process(ref agent);
+                var status = children[currentChild].Process(agent);
                 if (status != ProcessStatus.Success)
                     return status;
 

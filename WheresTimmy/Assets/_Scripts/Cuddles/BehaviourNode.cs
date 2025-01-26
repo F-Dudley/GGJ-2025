@@ -16,14 +16,15 @@ namespace BT
         public readonly List<Node> children = new();
         protected int currentChild;
 
-        public Node(string name = "DefaultNode")
+        public Node(string name = "DefaultNode", int priority = 0)
         {
             this.name = name;
+            this.priority = 0;
         }
 
         public void AddChild(Node child) => children.Add(child);
 
-        public virtual ProcessStatus Process(ref Agent agent) => children[currentChild].Process(ref agent);
+        public virtual ProcessStatus Process(Agent agent) => children[currentChild].Process(agent);
 
         public virtual void Reset()
         {

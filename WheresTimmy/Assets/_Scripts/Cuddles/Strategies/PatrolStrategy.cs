@@ -1,21 +1,20 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using UnityEngine.AI;
-using UnityEngine.Video;
 
-namespace BT
+namespace BT.Strategies
 {
     public class PatrolStrategy : IStrategy
     {
-        int currentIndex;
+        int currentIndex = 0;
+        bool isPathCalculated;
 
         public PatrolStrategy()
         {
 
         }
 
-        public ProcessStatus Process(ref Agent agent)
+        public ProcessStatus Process(Agent agent)
         {
             if (agent.KeyLocationAmount == 0)
                 return ProcessStatus.Failure;
@@ -23,8 +22,22 @@ namespace BT
             if (currentIndex == agent.KeyLocationAmount)
                 return ProcessStatus.Success;
 
+
             Vector3 target = agent.GetKeyLocation(currentIndex);
             agent.SetNavDestination(target);
+            agent.LookAt(target);
+
+            if (isPathCalculated && agent.ArrivedAtDestination)
+            {
+                currentIndex++;
+                isPathCalculated = false;
+            }
+
+            if (agent.PendingNavPath)
+            {
+                isPathCalculated = true;
+            }
+
 
             return ProcessStatus.Running;
         }
