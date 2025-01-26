@@ -491,18 +491,6 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 5942563321176306813, guid: de8497383683ff84c97db3db4f0baad3, type: 3}
-      propertyPath: rayAmount
-      value: 50
-      objectReference: {fileID: 0}
-    - target: {fileID: 5942563321176306813, guid: de8497383683ff84c97db3db4f0baad3, type: 3}
-      propertyPath: spreadAmount.x
-      value: 15
-      objectReference: {fileID: 0}
-    - target: {fileID: 5942563321176306813, guid: de8497383683ff84c97db3db4f0baad3, type: 3}
-      propertyPath: spreadAmount.y
-      value: 15
-      objectReference: {fileID: 0}
     - target: {fileID: 8892323555266828843, guid: de8497383683ff84c97db3db4f0baad3, type: 3}
       propertyPath: m_Name
       value: BubbleGun
