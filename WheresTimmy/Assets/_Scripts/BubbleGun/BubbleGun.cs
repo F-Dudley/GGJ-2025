@@ -94,16 +94,14 @@ public class BubbleGun : MonoBehaviour, IInteractable
         }
 
         NativeArray<RaycastCommand> raycastCommands = new NativeArray<RaycastCommand>(rayAmount, Allocator.TempJob);
+        NativeArray<RaycastHit> hits = new NativeArray<RaycastHit>(rayAmount, Allocator.TempJob);
+
         preFireJob.commands = raycastCommands;
 
         JobHandle preFireHandle = preFireJob.Schedule(raycastCommands.Length, 100);
 
-        NativeArray<RaycastHit> hits = new NativeArray<RaycastHit>(rayAmount, Allocator.TempJob);
-
-        JobHandle raycastJob = RaycastCommand.ScheduleBatch(raycastCommands, hits, 25, preFireHandle);
+        JobHandle raycastJob = RaycastCommand.ScheduleBatch(raycastCommands, hits, 10, preFireHandle);
         raycastJob.Complete();
-
-        raycastCommands.Dispose();
 
         foreach (var hit in hits)
         {
@@ -118,7 +116,9 @@ public class BubbleGun : MonoBehaviour, IInteractable
             _nativeBubbles.Add(newBubble);
         }
 
+        raycastCommands.Dispose();
         hits.Dispose();
+
         lastFireTime = Time.time;
     }
 
