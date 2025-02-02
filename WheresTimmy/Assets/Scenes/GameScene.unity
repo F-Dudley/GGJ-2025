@@ -6651,18 +6651,6 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 5942563321176306813, guid: de8497383683ff84c97db3db4f0baad3, type: 3}
-      propertyPath: bubbleGlub
-      value: 
-      objectReference: {fileID: 1700481618}
-    - target: {fileID: 5942563321176306813, guid: de8497383683ff84c97db3db4f0baad3, type: 3}
-      propertyPath: motorNoise
-      value: 
-      objectReference: {fileID: 2054735855}
-    - target: {fileID: 5942563321176306813, guid: de8497383683ff84c97db3db4f0baad3, type: 3}
-      propertyPath: maxFireDistance
-      value: 130
-      objectReference: {fileID: 0}
     - target: {fileID: 8892323555266828843, guid: de8497383683ff84c97db3db4f0baad3, type: 3}
       propertyPath: m_Name
       value: BubbleGun
@@ -11225,26 +11213,6 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1982183349}
     m_Modifications:
-    - target: {fileID: 1333517667403478, guid: f36916143c7509543b1b8d40091baa24, type: 3}
-      propertyPath: m_Layer
-      value: 6
-      objectReference: {fileID: 0}
-    - target: {fileID: 1487808167126180, guid: f36916143c7509543b1b8d40091baa24, type: 3}
-      propertyPath: m_Layer
-      value: 6
-      objectReference: {fileID: 0}
-    - target: {fileID: 1600038145722832, guid: f36916143c7509543b1b8d40091baa24, type: 3}
-      propertyPath: m_Name
-      value: Rock2
-      objectReference: {fileID: 0}
-    - target: {fileID: 1600038145722832, guid: f36916143c7509543b1b8d40091baa24, type: 3}
-      propertyPath: m_Layer
-      value: 6
-      objectReference: {fileID: 0}
-    - target: {fileID: 4007895067663058, guid: f36916143c7509543b1b8d40091baa24, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: -10.91
-      objectReference: {fileID: 0}
     - target: {fileID: 1220206043906976, guid: 86263e8355f96ba4ab9fdf4e96c2090f, type: 3}
       propertyPath: m_Layer
       value: 6
@@ -11300,6 +11268,26 @@ PrefabInstance:
     - target: {fileID: 23744825324263174, guid: 86263e8355f96ba4ab9fdf4e96c2090f, type: 3}
       propertyPath: m_Enabled
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1333517667403478, guid: f36916143c7509543b1b8d40091baa24, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 1487808167126180, guid: f36916143c7509543b1b8d40091baa24, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 1600038145722832, guid: f36916143c7509543b1b8d40091baa24, type: 3}
+      propertyPath: m_Name
+      value: Rock2
+      objectReference: {fileID: 0}
+    - target: {fileID: 1600038145722832, guid: f36916143c7509543b1b8d40091baa24, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 4007895067663058, guid: f36916143c7509543b1b8d40091baa24, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -10.91
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -15713,11 +15701,6 @@ MonoBehaviour:
   m_Bidirectional: 1
   m_AutoUpdatePosition: 0
   m_Area: 2
---- !u!82 &1700481618 stripped
-AudioSource:
-  m_CorrespondingSourceObject: {fileID: 8051688914086166487, guid: de8497383683ff84c97db3db4f0baad3, type: 3}
-  m_PrefabInstance: {fileID: 695863695}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1700646160 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 888060974721039916, guid: 3a6809c332000034d9bdbec575826160, type: 3}
@@ -18689,11 +18672,6 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: ff4aa10e43090274385e9962cf71148c, type: 3}
---- !u!82 &2054735855 stripped
-AudioSource:
-  m_CorrespondingSourceObject: {fileID: 1504491555933231547, guid: de8497383683ff84c97db3db4f0baad3, type: 3}
-  m_PrefabInstance: {fileID: 695863695}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &2080819255
 PrefabInstance:
   m_ObjectHideFlags: 0

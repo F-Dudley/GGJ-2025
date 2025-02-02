@@ -645,10 +645,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   fireCooldown: 0.005
-  maxFireDistance: 100
+  maxFireDistance: 130
   firePosition: {fileID: 3287398228673947522}
   spreadAmount: {x: 23, y: 23}
   rayAmount: 30
+  hittableLayers:
+    serializedVersion: 2
+    m_Bits: 465
   bubbleMovement: 1
   bubbleSize: 0.1
   minDecayTime: 8
@@ -656,8 +659,8 @@ MonoBehaviour:
   bubbleMesh: {fileID: 10207, guid: 0000000000000000e000000000000000, type: 0}
   bubbleMat: {fileID: 2100000, guid: 32e06e0d830982442abb9c0fe324b709, type: 2}
   gunCollider: {fileID: 0}
-  motorNoise: {fileID: 0}
-  bubbleGlub: {fileID: 0}
+  motorNoise: {fileID: 1504491555933231547}
+  bubbleGlub: {fileID: 8051688914086166487}
 --- !u!64 &2425560863749309512
 MeshCollider:
   m_ObjectHideFlags: 0

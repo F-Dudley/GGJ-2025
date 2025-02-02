@@ -17,6 +17,7 @@ public class BubbleGun : MonoBehaviour, IInteractable
     [Header("Raycast Settings")]
     [SerializeField] private Vector2 spreadAmount;
     [SerializeField] private int rayAmount = 20;
+    [SerializeField] private LayerMask hittableLayers;
 
     private float lastFireTime = 0.0f;
 
@@ -28,12 +29,6 @@ public class BubbleGun : MonoBehaviour, IInteractable
     [SerializeField] private float maxDecayTime = 4.0f;
     [SerializeField] private Mesh bubbleMesh;
     [SerializeField] private Material bubbleMat;
-    private NativeList<Bubble> _nativeBubbles;
-    private NativeList<Matrix4x4> _nativeBubbleMatrices;
-
-    private BubbleFunctionJob bubbleFunctionJob;
-    private BubbleFilterJob bubbleFilterJob;
-    private RenderParams renderParams;
 
     [Header("Interaction Settings")]
     [SerializeField] private Collider gunCollider;
@@ -42,15 +37,25 @@ public class BubbleGun : MonoBehaviour, IInteractable
     [SerializeField] private AudioSource motorNoise;
     [SerializeField] private AudioSource bubbleGlub;
 
+    [Header("Jobs")]
+    private NativeList<Bubble> _nativeBubbles;
+    private NativeList<Matrix4x4> _nativeBubbleMatrices;
+
+    private BubblePreFireJob preFireJob;
+    private BubbleFunctionJob bubbleFunctionJob;
+    private BubbleFilterJob bubbleFilterJob;
+    private RenderParams renderParams;
+
     private void Start()
     {
         gunCollider = GetComponent<Collider>();
         lastFireTime = Time.time;
 
-        _nativeBubbles = new NativeList<Bubble>(Allocator.Persistent);
-        // Init Jobs
-        bubbleFunctionJob = new BubbleFunctionJob();
+        _nativeBubbles = new NativeList<Bubble>(20000, Allocator.Persistent);
 
+        // Init Jobs
+        preFireJob = new BubblePreFireJob();
+        bubbleFunctionJob = new BubbleFunctionJob();
         bubbleFilterJob = new BubbleFilterJob();
 
         renderParams = new RenderParams(bubbleMat);
@@ -70,32 +75,50 @@ public class BubbleGun : MonoBehaviour, IInteractable
         if (lastFireTime + fireCooldown > Time.time)
             return;
 
-        Ray ray;
-        RaycastHit rhit;
-
-        Vector3 scaledSpreadAmount = spreadAmount * Mathf.Deg2Rad;
-
-        for (int i = 0; i < rayAmount; i++)
-        {
-            float randomYaw = UnityEngine.Random.Range(-scaledSpreadAmount.x, scaledSpreadAmount.x);
-            float randomPitch = UnityEngine.Random.Range(-scaledSpreadAmount.y, scaledSpreadAmount.y);
-
-            Vector3 pitchOffset = firePosition.up * randomPitch;
-            Vector3 yawOffset = firePosition.right * randomYaw;
-
-            ray = new Ray(firePosition.position, (firePosition.forward + yawOffset + pitchOffset).normalized);
-
-            if (Physics.Raycast(ray, out rhit, maxFireDistance))
-            {
-                Bubble newBubble = new Bubble();
-                newBubble.pos = firePosition.position;
-                newBubble.target = rhit.point;
-                newBubble.decayTime = UnityEngine.Random.Range(minDecayTime, maxDecayTime);
-
-                _nativeBubbles.Add(newBubble);
-            }
+        { // Positional Vars
+            preFireJob.fPosition = firePosition.position;
+            preFireJob.fOriginForward = firePosition.forward;
+            preFireJob.fOriginRight = firePosition.right;
         }
 
+        { // Raycast Vars
+            QueryParameters qParams = QueryParameters.Default;
+            qParams.hitTriggers = QueryTriggerInteraction.Ignore;
+            qParams.layerMask = hittableLayers;
+
+            preFireJob.fireSpread = spreadAmount;
+            preFireJob.fireDistance = maxFireDistance;
+            preFireJob.parameters = qParams;
+
+            preFireJob.baseSeed = (uint)UnityEngine.Random.Range(1, int.MaxValue);
+        }
+
+        NativeArray<RaycastCommand> raycastCommands = new NativeArray<RaycastCommand>(rayAmount, Allocator.TempJob);
+        preFireJob.commands = raycastCommands;
+
+        JobHandle preFireHandle = preFireJob.Schedule(raycastCommands.Length, 100);
+
+        NativeArray<RaycastHit> hits = new NativeArray<RaycastHit>(rayAmount, Allocator.TempJob);
+
+        JobHandle raycastJob = RaycastCommand.ScheduleBatch(raycastCommands, hits, 25, preFireHandle);
+        raycastJob.Complete();
+
+        raycastCommands.Dispose();
+
+        foreach (var hit in hits)
+        {
+            if (hit.collider == null)
+                continue;
+
+            Bubble newBubble = new Bubble();
+            newBubble.pos = firePosition.position;
+            newBubble.target = hit.point;
+            newBubble.decayTime = UnityEngine.Random.Range(minDecayTime, maxDecayTime);
+
+            _nativeBubbles.Add(newBubble);
+        }
+
+        hits.Dispose();
         lastFireTime = Time.time;
     }
 
@@ -130,18 +153,16 @@ public class BubbleGun : MonoBehaviour, IInteractable
         // Apply Bubble Filtering on Decayed Bubbles
         //
 
-        NativeList<Bubble> FilteredBubbles = new NativeList<Bubble>(Mathf.Max(_nativeBubbles.Capacity, 100000), Allocator.TempJob);
+        NativeList<Bubble> FilteredBubbles = new NativeList<Bubble>(_nativeBubbles.Capacity, Allocator.TempJob);
 
         bubbleFilterJob.FilteredBubbles = FilteredBubbles.AsParallelWriter();
         bubbleFilterJob.BubblesList = _nativeBubbles.AsDeferredJobArray();
 
-        var bubbleFilterHandle = bubbleFilterJob.Schedule(_nativeBubbles.Length, 50, bubbleFuncHandle);
+        var bubbleFilterHandle = bubbleFilterJob.Schedule(_nativeBubbles.Length, 64, bubbleFuncHandle);
         bubbleFilterHandle.Complete();
 
         _nativeBubbles.Dispose();
         _nativeBubbles = FilteredBubbles;
-
-        //FilteredBubbles.Dispose();
 
         Debug.Log("Filtered Amount: " + FilteredBubbles.Length);
     }
